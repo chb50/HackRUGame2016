@@ -21,14 +21,30 @@ class Item(object): #implemented as a pure virtual, in that every item must have
         
 
 class Knife(Item):
-    def __init__(self,image,offset_x,offset_y, hitbox_x, hitbox_y):
+    def __init__(self,image,offset_x,offset_y):
         #get every paramater of the "Item" parent class
         super().__init__(self,image,offset_x,offset_y)
         #these values should not change throughout execution of the game
         self.damage = 10
         self.size = (1,2)
         self.name = "knife"
-    
+
+class Pistol(Item):
+	def __init__(self ,image, offset_x, offset_y, ammo):
+		super().__init__(self, image, offset_x, offset_y)
+		#static
+		self.size = (1,2)
+		self.name = "pistol"
+		#variable
+		self.ammo = 5
+
+class Bullet(Item):
+	def __init__(self, image, offset_x, offset_y, count):
+		super().__init__(self, image, offset_x, offset_y)
+		self.name = "bullet"
+		self.damage = 20
+		self.size = (0,0)
+
 
 
 class Player(object):
