@@ -1,12 +1,14 @@
+from __future__ import generators
 import pygame
 import abc #module for using abstract base classes
+
 
 #code for hit ditection, may be useful later
 ##if (self.offset_x < player.hitbox_x and self.offset_x > player.offset_x and self.offset_y < player.hitbox_y and self.offset_y > player.offset_y
 ##    or self.offset_x < player.hitbox_x and self.offset_x > player.offset_x and self.hitbox_y < player.hitbox_y and self.hitbox_y > player.offset_y
 ##    or self.hitbox_x < player.hitbox_x and self.hitbox_x > player.offset_x and self.offset_y < player.hitbox_y and self.offset_y > player.offset_y
 ##    or self.hitbox_x < player.hitbox_x and self.hitbox_x > player.offset_x and self.hitbox_y < player.hitbox_y and self.hitbox_y > player.offset_y):
-
+		
 class Item(object): #implemented as a pure virtual, in that every item must have at least these parameters
     def __init__(self,image,offset_x,offset_y):
         self.image = image #SUBJECT TO CHANGE
@@ -18,33 +20,52 @@ class Item(object): #implemented as a pure virtual, in that every item must have
 #general items
 class computer(Item):
     def __init__(self,image,offset_x,offset_y, message):
-        super().__init__(self,image,offset_x,offset_y)
+        Item.__init__(self,image,offset_x,offset_y)
         self.message = message #message that the computer tells the player
         self.name = "computer"
+
+class Bullet(Item):
+    def __init__(self, image, offset_x, offset_y, weapon_dmg):
+        Item.__init__(self, image, offset_x, offset_y)
+        self.damage = weapon_dmg
 
 #equipable items
 class Equipable(Item):
     def __init__(self,image,offset_x,offset_y):
-        super().__init__(self,image,offset_x,offset_y)
+        Item.__init__(self,image,offset_x,offset_y)
         self.damage = None
+        self.ammo = None
         
 class Knife(Equipable):
     def __init__(self,image,offset_x,offset_y):
-        #get every paramater of the "Item" parent class
-        super().__init__(self,image,offset_x,offset_y)
+        Equipable.__init__(self,image,offset_x,offset_y)
         #these values should not change throughout execution of the game
         self.damage = 10
         self.size = (1,2)
         self.name = "knife"
 
+class Pistol(Equipable):
+    def __init__(self ,image, offset_x, offset_y, ammo):
+        Equipable.__init__(self, image, offset_x, offset_y)
+        #static
+        self.damage = 20
+        self.size = (1,2)
+        self.name = "pistol"
+        #variable
+        self.ammo = 5
+    #needs to generate bullets
+    def factory(self, type): #the "self" parameter for the factory is explicit, and there for an arguement must be passed in it (the object that contains this function)
+        if type == "bullet":
+            self.ammo -= 1
+            return Bullet(0,0,0,self.damage)
+    factory = staticmethod(factory)
+
 #consumable items
 class Consumable(Item):
     def __init__(self,image,offset_x,offset_y):
-        super().__init__(self,image,offset_x,offset_y)
+        Item.__init__(self,image,offset_x,offset_y)
         self.healing = None #gain health from this item
         self.rejuvinate = None #gain stamina from this item
-    
-
 
 class Player(object):
     #sprite will be the immage loaded to the character from photoshop
