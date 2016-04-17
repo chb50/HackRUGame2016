@@ -35,6 +35,7 @@ class Equipable(Item):
         Item.__init__(self,image,offset_x,offset_y)
         self.damage = None
         self.ammo = None
+        self.weight = None
         
 class Knife(Equipable):
     def __init__(self,image,offset_x,offset_y):
@@ -43,20 +44,24 @@ class Knife(Equipable):
         self.damage = 10
         self.size = (1,2)
         self.name = "knife"
+        self.weight = 5
 
-class Pistol(Equipable):
+class Pistol(Equipable): #gain ammo by finding more pistols
     def __init__(self ,image, offset_x, offset_y, ammo):
         Equipable.__init__(self, image, offset_x, offset_y)
         #static
         self.damage = 20
         self.size = (1,2)
         self.name = "pistol"
+        self.weight = 10
         #variable
         self.ammo = 5
+        
     #needs to generate bullets
     def factory(self, type): #the "self" parameter for the factory is explicit, and there for an arguement must be passed in it (the object that contains this function)
         if type == "bullet":
             self.ammo -= 1
+            print("test: " + str(self.damage))
             return Bullet(0,0,0,self.damage)
     factory = staticmethod(factory)
 
@@ -66,12 +71,16 @@ class Consumable(Item):
         Item.__init__(self,image,offset_x,offset_y)
         self.healing = None #gain health from this item
         self.rejuvinate = None #gain stamina from this item
+        #these two variables track the top left box of the item in inventory
+        self.invent_x = None
+        self.invent_y = None
 
 class Player(object):
     #sprite will be the immage loaded to the character from photoshop
     def __init__(self,sprite, objective, offset_x, offset_y):
         self.objective = objective # a string explaining to the user what their objective is
-        self.inventory = [["","","","",""],["","","","",""],["","","","",""],["","","","",""],["","","","",""]] #4x5 matrix
+        self.invent_weight = 20 #carry capacity (weight) that the player has left
+        self.inventory = []
         self.speech = ["don't attack!", "don't mind me.", "I'm here to help.", "stay away!", "your days are numbered.", "time to die!"]
         self.sprite = sprite
         self.offset_x = offset_x #x coordinate of player
@@ -82,18 +91,31 @@ class Player(object):
         self.health = 100
         self.attack = 5 #the amount of damage that the player deals with their current weapon
         self.stamina = 100
-    def player_move(move_x, move_y):
+        
+    #NOTE: if you need to refer to the member variables defined with "self" in a method, you need to pass "self" as a parameter to said method
+        
+    def player_move(self, move_x, move_y): #NOT TESTED
         #solve for player movement based on keyboard input. render the player at a location on the map pased on the players coordinate parameters
         self.offset_x = self.offset_x + move_x
         self.offset_y = self.offset_y + move_y
-    def player_damage(item):
+        
+    def player_damage(self, item): #NOT TESTED
         if isinstance(item, Equipable) != True:
             print("Cannot calculate damage of this item!")
             return   
         self.health = self.health - item.damage
         if self.health < 0:
             self.dead = True
-    def player_equip_item(item): #this function should only pass in items intended to be equipable
+            
+    def player_add_item_to_inventory(self, item):
+        if self.invent_weight > item.weight:
+            self.invent_weight - item.weight
+            self.inventory.append(item.name)
+        else:
+            #will need to be displayed to the player
+            print("Cannot pick up item!")
+            
+    def player_equip_item(self, item): #this function should only pass in items intended to be equipable
         #for collision detection, we will use pygame sprites
         #item_name is the "name" member variable of the item classes above
         if isinstance(item, Equipable) != True:
@@ -101,18 +123,22 @@ class Player(object):
             return         
         self.equip = item.name
         self.attack = item.damage
-    def player_remove_item(item): #allow player to drop items
-        for i in range (0 , len(self.inventory)):
-            for j in range (0, len(i)):
-                if self.inventory[i][j] == item.name:
-                    self.inventory[i][j] == ""
-    def player_consume_item(item): #this function should only pass in items that are intended to be consumable
+        
+    def player_remove_item(self, item): #allow player to drop items
+        self.invent_weight + item.weight
+        if self.invent_weight > 20:
+            self.invent_weight = 20
+        for i in self.inventory:
+            if i == item.name:
+                self.inventory.remove(i)
+                return
+            
+    def player_consume_item(self, item): #this function should only pass in items that are intended to be consumable
         if isinstance(item, Consumable) != True:
             print("Cannot use this item!")
             return
         #we need to delete the item from the inventory
         player_remove_item(item)
-                    #will need to remove the item visually as well
         self.health = self.health + item.healing
         if self.health > 100:
             self.health = 100
