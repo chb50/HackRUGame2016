@@ -2,9 +2,6 @@ from __future__ import generators
 import pygame
 import abc #module for using abstract base classes
 
-SCALE = 2
-TILESIZE = 20
-SIZE = SCALE*TILESIZE
 #code for hit ditection, may be useful later
 ##if (self.offset_x < player.hitbox_x and self.offset_x > player.offset_x and self.offset_y < player.hitbox_y and self.offset_y > player.offset_y
 ##    or self.offset_x < player.hitbox_x and self.offset_x > player.offset_x and self.hitbox_y < player.hitbox_y and self.hitbox_y > player.offset_y
@@ -79,7 +76,7 @@ class Consumable(Item):
 
 class Player(object):
     #sprite will be the image loaded to the character from photoshop
-    def __init__(self,sprite, objective, x, y, color):
+    def __init__(self,sprite, objective, x, y, color, size):
         self.objective = objective # a string explaining to the user what their objective is
         self.invent_weight = 20 #carry capacity (weight) that the player has left
         self.inventory = []
@@ -93,7 +90,7 @@ class Player(object):
         self.stamina = 100
         
         #Front end junk
-        self.sprite.image = pygame.Surface([SIZE, SIZE])
+        self.sprite.image = pygame.Surface([size, size])
         self.sprite.image.fill(color)
         self.sprite.rect = self.sprite.image.get_rect()
         self.sprite.rect.topleft = (x,y)

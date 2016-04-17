@@ -95,8 +95,8 @@ class Player(object):
         #Front end junk
         self.sprite.image = pygame.Surface([SIZE, SIZE])
         self.sprite.image.fill(color)
-        self.rect = self.sprite.image.get_rect()
-        self.rect.topleft = (x,y)
+        self.sprite.rect = self.sprite.image.get_rect()
+        self.sprite.rect.topleft = (x,y)
         
     #NOTE: if you need to refer to the member variables defined with "self" in a method, you need to pass "self" as a parameter to said method
         

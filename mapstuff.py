@@ -283,7 +283,7 @@ def add_map():
     r11bwall_r.add(wallgroup)
 
 
-player = Player(pygame.sprite.Sprite(),'Steal the Declaration of Independence', 2*SIZE, 2*SIZE, GREEN)
+player = Player(pygame.sprite.Sprite(),'Steal the Declaration of Independence', 2*SIZE, 2*SIZE, GREEN, SIZE)
 player.sprite.add(playgroup)
 displaydoors = True
 
