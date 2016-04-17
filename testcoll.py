@@ -1,4 +1,5 @@
 import pygame, sys
+import math #need this for distance calculation - Jon Cheng
 from pygame.locals import *
 
 pygame.init()
@@ -128,9 +129,13 @@ while True:
       pygame.quit()
       sys.exit()
 
+  # Jon Cheng is trying to fix this by inserting the following line:
+    dist = math.hypot(person.rect.x - pidgey.rect.x, person.rect.y - pidgey.rect.y)
+    print dist
   # needs to be fixed 
-  if person.rect.colliderect(pidgey) and ePressed == True:
-    raise SystemExit, "You win!"
+  #if person.rect.colliderect(pidgey) and ePressed == True: #Vineet's
+    if dist < 40 and ePressed == True: # Jon's
+      raise SystemExit, "You win!"
 
   #used for updates  
   DISPLAYSURF.blit(pidgey.image, (pidgey.rect.x, pidgey.rect.y))
