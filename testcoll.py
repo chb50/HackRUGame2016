@@ -1,10 +1,15 @@
 import pygame, sys
-import math #need this for distance calculation - Jon Cheng
+import math #need this for Pythagorean Thm - Jon Cheng
+# And...because I can't math after staying up for almost 24 hours
+# for this hackathon ;D
 from pygame.locals import *
 
 pygame.init()
 
 class Block(pygame.sprite.Sprite):
+
+    # layer -- JC
+    layer = 1
 
     # Constructor. Pass in the color of the block,
     # and its x and y position
@@ -47,11 +52,14 @@ class Block(pygame.sprite.Sprite):
                 self.rect.bottom = pidgey.rect.top
             if dy < 0: # Moving up; Hit the bottom side of the wall
                 self.rect.top = pidgey.rect.bottom
-
+        
 class Object(pygame.sprite.Sprite):
    def __init__(self, offset_x, offset_y):
        # Call the parent class (Sprite) constructor
        pygame.sprite.Sprite.__init__(self)
+
+       # layer priority so that the player "steps over" the object
+       self.layer = 1
 
        # Create an image of the block, and fill it with a color.
        # This could also be an image loaded from the disk.
@@ -63,9 +71,46 @@ class Object(pygame.sprite.Sprite):
        self.rect.x = offset_x
        self.rect.y = offset_y
 
+# Creating another object - Jon Cheng
+class Item(pygame.sprite.Sprite):
+
+    #layer -- Jon Cheng
+   layer = 2
+
+   def __init__(self, offset_x, offset_y):
+       # Call the parent class (Sprite) constructor
+       pygame.sprite.Sprite.__init__(self)
+
+       # layer priority and passing sprite in as layer -- JC
+       sprites.add(self, layer = self.layer)
+
+
+       # Create an image of the block, and fill it with a color.
+       # This could also be an image loaded from the disk.
+       self.image = pygame.image.load('images/masterball.jpg')
+
+       # Fetch the rectangle object that has the dimensions of the image
+       # Update the position of this object by setting the values of rect.x and rect.y
+       self.rect = self.image.get_rect()
+       self.rect.x = offset_x
+       self.rect.y = offset_y
+
+# Layered Updates so that the player can "step over" items - Jon Cheng
+sprites = pygame.sprite.LayeredUpdates()
+players = pygame.sprite.LayeredUpdates()
+items = pygame.sprite.LayeredUpdates() #for the walls in the future
+
+Block.groups = sprites, players
+Item.groups = sprites, items
+
 # instantiate objects
 person = Block(100,100)
 pidgey = Object(200,200)
+# Another instantiation...Jon Cheng
+an_item = Item(275, 125)
+
+# Items list
+Items = pygame.sprite.Group()
 
 # set the FPS 
 FPS = 40
@@ -129,16 +174,34 @@ while True:
       pygame.quit()
       sys.exit()
 
-  # Jon Cheng is trying to fix this by inserting the following line:
-    dist = math.hypot(person.rect.x - pidgey.rect.x, person.rect.y - pidgey.rect.y)
-    print dist
-  # needs to be fixed 
+  # Jon Cheng is trying to fix this by inserting the following lines:
+    dist_object = math.hypot(person.rect.x - pidgey.rect.x, person.rect.y - pidgey.rect.y)
+    dist_item = math.hypot(person.rect.x - an_item.rect.x, person.rect.y - an_item.rect.y)
+  
+  # needs to be fixed @Vineet, fixed! 
   #if person.rect.colliderect(pidgey) and ePressed == True: #Vineet's
-    if dist < 40 and ePressed == True: # Jon's
+    if dist_object < 35 and ePressed == True: # Replaced is_collision? with dist_obj --Jon Cheng
       raise SystemExit, "You win!"
+
+    if dist_item < 32 and ePressed == True: # Jon's addendum
+      print "Bruh, you grabbed a Pokeball!"
+      if person.rect.colliderect(an_item) or dist_item < 32:
+        an_item.image.fill((255, 255, 255))
+        an_item.rect.x = 0
+        an_item.rect.y = 0
+
+
 
   #used for updates  
   DISPLAYSURF.blit(pidgey.image, (pidgey.rect.x, pidgey.rect.y))
-  DISPLAYSURF.blit(person.image, (person.rect.x, person.rect.y))
+  #adding another displaysurf for item masterball
+  DISPLAYSURF.blit(an_item.image, (an_item.rect.x, an_item.rect.y))
+
+  # Note: by convention, the last blit is the top-most thing on the game window
+  # Immediate source: Google pygame sprite layer --> hyperlink beginning with [SOLVED] 
+  # TODO - research actual reasoning, or accept it and call it a day, and be 
+  # confuzzled the next time we encounter this. 
+  DISPLAYSURF.blit(person.image, (person.rect.x, person.rect.y)) 
+
   pygame.display.update()
   fpsClock.tick(FPS)
