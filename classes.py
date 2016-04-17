@@ -106,11 +106,12 @@ class Player(object):
         self.health = self.health - item.damage
         if self.health < 0:
             self.dead = True
-            
+
+    #can generate item names on front end based on the objects "name" parameter pushed in the back end
     def player_add_item_to_inventory(self, item):
         if self.invent_weight > item.weight:
             self.invent_weight - item.weight
-            self.inventory.append(item.name)
+            self.inventory.append(item) #can access items by their "name" parameter
         else:
             #will need to be displayed to the player
             print("Cannot pick up item!")
@@ -129,7 +130,7 @@ class Player(object):
         if self.invent_weight > 20:
             self.invent_weight = 20
         for i in self.inventory:
-            if i == item.name:
+            if i == item:
                 self.inventory.remove(i)
                 return
             
