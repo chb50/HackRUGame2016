@@ -12,7 +12,7 @@ BROWN = list(( 90, 30,  0))
 GREEN = list((  0,150,  0))
 BLUE  = list((  0,255,255))
 
-SCALE = 2
+SCALE = 4
 TILESIZE = 20
 FPS = 120*SCALE
 SIZE = TILESIZE*SCALE
