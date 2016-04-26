@@ -6,6 +6,10 @@ from pygame.locals import *
 
 pygame.init()
 
+def load_image(name):
+  image = pygame.image.load(name)
+  return image
+
 class Block(pygame.sprite.Sprite):
 
     # layer -- JC
@@ -17,15 +21,67 @@ class Block(pygame.sprite.Sprite):
        # Call the parent class (Sprite) constructor
        pygame.sprite.Sprite.__init__(self)
 
+       self.imagesFront = []
+       self.imagesFront.append(pygame.image.load('images/player_front.png'))
+       self.imagesFront.append(pygame.image.load('images/player_front_move1.png'))
+       self.imagesFront.append(pygame.image.load('images/player_front_move2.png'))
+
+       self.imagesBack = []
+       self.imagesBack.append(pygame.image.load('images/player_back.png'))
+       self.imagesBack.append(pygame.image.load('images/player_back_move1.png'))
+       self.imagesBack.append(pygame.image.load('images/player_back_move2.png'))
+
+       self.imagesLeft = []
+       self.imagesLeft.append(pygame.image.load('images/player_left.png'))
+       self.imagesLeft.append(pygame.image.load('images/player_left_move.png'))
+
+       self.imagesRight = []
+       self.imagesRight.append(pygame.image.load('images/player_right.png'))
+       self.imagesRight.append(pygame.image.load('images/player_right_move.png'))
+       
+
        # Create an image of the block, and fill it with a color.
        # This could also be an image loaded from the disk.
-       self.image = pygame.image.load('images/player.jpg')
+       self.rightIndex = 0
+       self.leftIndex = 0
+       self.frontIndex = 0
+       self.backIndex = 0
+       self.image = self.imagesFront[self.frontIndex]
 
        # Fetch the rectangle object that has the dimensions of the image
        # Update the position of this object by setting the values of rect.x and rect.y
        self.rect = self.image.get_rect()
        self.rect.x = offset_x
        self.rect.y = offset_y
+
+    #update animation function with right movement
+    def rightUpdate(self):
+      self.rightIndex += 1
+      if self.rightIndex >= len(self.imagesRight):
+        self.rightIndex = 0
+      self.image = self.imagesRight[self.rightIndex]
+
+    #update animation function with left movement
+    def leftUpdate(self):
+      self.leftIndex += 1
+      if self.leftIndex >= len(self.imagesLeft):
+        self.leftIndex = 0
+      self.image = self.imagesLeft[self.leftIndex]
+
+    #update animation function with left movement
+    def frontUpdate(self):
+      self.frontIndex += 1
+      if self.frontIndex >= len(self.imagesFront):
+        self.frontIndex = 0
+      self.image = self.imagesFront[self.frontIndex]
+
+    #update animation function with left movement
+    def backUpdate(self):
+      self.backIndex += 1
+      if self.backIndex >= len(self.imagesBack):
+        self.backIndex = 0
+      self.image = self.imagesBack[self.backIndex]
+
 
 
     def move(self, dx, dy):
@@ -52,6 +108,8 @@ class Block(pygame.sprite.Sprite):
                 self.rect.bottom = pidgey.rect.top
             if dy < 0: # Moving up; Hit the bottom side of the wall
                 self.rect.top = pidgey.rect.bottom
+
+
         
 class Object(pygame.sprite.Sprite):
    def __init__(self, offset_x, offset_y):
@@ -109,12 +167,13 @@ person = Block(100,100)
 pidgey = Object(200,200)
 # Another instantiation...Jon Cheng
 an_item = Item(275, 125)
+#my_group = pygame.sprite.Group(person)
 
 # Items list
 # Unused # Items = pygame.sprite.Group()
 
 # set the FPS 
-FPS = 40
+FPS = 30
 # used to ensure a maximum fps setting
 fpsClock = pygame.time.Clock()
 
@@ -138,12 +197,21 @@ while True:
   # movements
   if moveUp == True:
     person.move(0, -5)
+    person.backUpdate()
+    #person.image = pygame.image.load('images/player_back.png')
   elif moveDown == True:
     person.move(0, 5)
+    person.frontUpdate()
+    #person.image = pygame.image.load('images/player_front.png')
   elif moveLeft == True:
     person.move(-5, 0)
+    person.leftUpdate()
+    #person.image = pygame.image.load('images/player_left.png')
   elif moveRight == True:
     person.move(5, 0)
+    person.rightUpdate()
+    #person.image = pygame.image.load('images/player_right.png')
+
 
   for event in pygame.event.get():
     #check for a key press
@@ -185,15 +253,23 @@ while True:
   # The distance is denoted by the difference between the top left of 
   # the player's/person's image to the top left of the image being compared
   # I'm assuming the solution is in pixels? Test with print statements! 
-    if dist_object < 35 and ePressed == True: # Replaced collision check with dist_obj --Jon Cheng
-      raise SystemExit, "You win!"
-
-    if dist_item < 32 and ePressed == True: # Jon's addendum
+    if dist_item < 40 and ePressed == True: # Replaced collision check with dist_obj --Jon Cheng
       print "Bruh, you grabbed a Pokeball!"
       if person.rect.colliderect(an_item) or dist_item < 32:
         an_item.image.fill((255, 255, 255))
-        an_item.rect.x = -5000
-        an_item.rect.y = -5000
+        # an_item.rect.x = -5000
+        # an_item.rect.y = -5000
+
+      
+    if dist_object < 35 and ePressed == True: # Replaced collision check with dist_obj --Jon Cheng
+      raise SystemExit, "You Caught a Pidgey!"
+
+    # if dist_item < 32 and ePressed == True: # Jon's addendum
+    #   print "Bruh, you grabbed a Pokeball!"
+    #   if person.rect.colliderect(an_item) or dist_item < 32:
+    #     an_item.image.fill((255, 255, 255))
+    #     an_item.rect.x = -5000
+    #     an_item.rect.y = -5000
         # We relocated the item very far away to the top left
         # We should figure our how to actually remove the 
         # sprite and save a copy to the inventory when we get
