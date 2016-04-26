@@ -11,8 +11,9 @@ WHITE = list((255,255,255))
 BROWN = list(( 90, 30,  0))
 GREEN = list((  0,150,  0))
 BLUE  = list((  0,255,255))
+RED   = list((180,  0,  0))
 
-SCALE = 2
+SCALE = 1
 TILESIZE = 20
 FPS = 120*SCALE
 SIZE = TILESIZE*SCALE
@@ -85,6 +86,15 @@ def move_map():
             spr.rect.x += 1
         if Right == True:
             spr.rect.x -= 1
+    for spr in enemygroup:
+        if Up == True:
+            spr.rect.y += 1
+        if Down == True:
+            spr.rect.y -= 1
+        if Left == True:
+            spr.rect.x += 1
+        if Right == True:
+            spr.rect.x -= 1
     if Up == True:
         floor.y += 1
     if Down == True:
@@ -101,6 +111,9 @@ def correct_map(dx, dy):
         spr.rect.x += dx
         spr.rect.y += dy
     for spr in doorgroup:
+        spr.rect.x += dx
+        spr.rect.y += dy
+    for spr in enemygroup:
         spr.rect.x += dx
         spr.rect.y += dy
     floor.x += dx
@@ -283,8 +296,18 @@ def add_map():
     r11bwall_r.add(wallgroup)
 
 
-player = Player(pygame.sprite.Sprite(),'Steal the Declaration of Independence', 2*SIZE, 2*SIZE, GREEN)
+player = Player(pygame.sprite.Sprite(),'Steal the Declaration of Independence', 3*SIZE, 3*SIZE, GREEN, SIZE)
 player.sprite.add(playgroup)
+
+enemygroup = pygame.sprite.Group()
+
+player2 = Player(pygame.sprite.Sprite(),'Find Purpose in Life', 3*SIZE, 9*SIZE, RED, SIZE)
+player3 = Player(pygame.sprite.Sprite(),'Kill Player GREEN', 26*SIZE, 31*SIZE, RED, SIZE)
+player4 = Player(pygame.sprite.Sprite(),'Kidnap the President', 2*SIZE, 2*SIZE, RED, SIZE)
+player2.sprite.add(enemygroup)
+player3.sprite.add(enemygroup)
+player4.sprite.add(enemygroup)
+
 displaydoors = True
 
 anns = pygame.Surface([0,0])
@@ -301,6 +324,7 @@ while True: # main game loop
     if displaydoors:
         doorgroup.draw(DISPLAYSURF)
     
+    enemygroup.draw(DISPLAYSURF)
     playgroup.draw(DISPLAYSURF)
     
     #Moves the player using booleans.  This ensures continuous movement.
