@@ -13,8 +13,9 @@ GREEN = list((  0,150,  0))
 BLUE  = list((  0,255,255))
 RED   = list((180,  0,  0))
 
-SCALE = 1
-TILESIZE = 20
+SPEED = 2
+SCALE = 2
+TILESIZE = 40
 FPS = 120*SCALE
 SIZE = TILESIZE*SCALE
 
@@ -70,54 +71,54 @@ class Door(pygame.sprite.Sprite):
 def move_map():
     for spr in wallgroup:
         if Up == True:
-            spr.rect.y += 1
+            spr.rect.y += SPEED
         if Down == True:
-            spr.rect.y -= 1
+            spr.rect.y -= SPEED
         if Left == True:
-            spr.rect.x += 1
+            spr.rect.x += SPEED
         if Right == True:
-            spr.rect.x -= 1
+            spr.rect.x -= SPEED
     for spr in doorgroup:
         if Up == True:
-            spr.rect.y += 1
+            spr.rect.y += SPEED
         if Down == True:
-            spr.rect.y -= 1
+            spr.rect.y -= SPEED
         if Left == True:
-            spr.rect.x += 1
+            spr.rect.x += SPEED
         if Right == True:
-            spr.rect.x -= 1
+            spr.rect.x -= SPEED
     for spr in enemygroup:
         if Up == True:
-            spr.rect.y += 1
+            spr.rect.y += SPEED
         if Down == True:
-            spr.rect.y -= 1
+            spr.rect.y -= SPEED
         if Left == True:
-            spr.rect.x += 1
+            spr.rect.x += SPEED
         if Right == True:
-            spr.rect.x -= 1
+            spr.rect.x -= SPEED
     if Up == True:
-        floor.y += 1
+        floor.y += SPEED
     if Down == True:
-        floor.y -= 1
+        floor.y -= SPEED
     if Left == True:
-        floor.x += 1
+        floor.x += SPEED
     if Right == True:
-        floor.x -= 1
+        floor.x -= SPEED
 
 #correct_map function: corrects the map position after collision.
 #Parameters: change in x, change in y.
 def correct_map(dx, dy):
     for spr in wallgroup:
-        spr.rect.x += dx
-        spr.rect.y += dy
+        spr.rect.x += dx*SPEED
+        spr.rect.y += dy*SPEED
     for spr in doorgroup:
-        spr.rect.x += dx
-        spr.rect.y += dy
+        spr.rect.x += dx*SPEED
+        spr.rect.y += dy*SPEED
     for spr in enemygroup:
-        spr.rect.x += dx
-        spr.rect.y += dy
-    floor.x += dx
-    floor.y += dy
+        spr.rect.x += dx*SPEED
+        spr.rect.y += dy*SPEED
+    floor.x += dx*SPEED
+    floor.y += dy*SPEED
 
 pygame.init()
 
@@ -140,7 +141,7 @@ playgroup = pygame.sprite.Group()
     #> OPTIONAL: If there is a door on that side of the room, include a _%c,
     #where %c follows the same convention as the third character (l||r||t||b)
 
-floor = Rect(0, 0, WINDOWWIDTH*SCALE, WINDOWHEIGHT*SCALE)
+floor = Rect(0, 0, WINDOWWIDTH*SCALE*2, WINDOWHEIGHT*SCALE*2)
 
 #Border
 topwall = Wall(50*SIZE, SIZE, (0,0))
@@ -329,42 +330,42 @@ while True: # main game loop
     
     #Moves the player using booleans.  This ensures continuous movement.
     if Player_Up:
-        player.sprite.rect.y -= 1
+        player.sprite.rect.y -= SPEED
     if Player_Down:
-        player.sprite.rect.y += 1
+        player.sprite.rect.y += SPEED
     if Player_Left:
-        player.sprite.rect.x -= 1
+        player.sprite.rect.x -= SPEED
     if Player_Right:
-        player.sprite.rect.x += 1
+        player.sprite.rect.x += SPEED
     
     #if a player is colliding with a wall, stop their movement and correct it.
     if pygame.sprite.spritecollideany(player.sprite, wallgroup) is not None:
         if Player_Up == True:
             Player_Up = False
-            player.sprite.rect.y += 1
+            player.sprite.rect.y += SPEED
         if Player_Down == True:
             Player_Down = False
-            player.sprite.rect.y -= 1
+            player.sprite.rect.y -= SPEED
         if Player_Left == True:
             Player_Left = False
-            player.sprite.rect.x += 1
+            player.sprite.rect.x += SPEED
         if Player_Right == True:
             Player_Right = False
-            player.sprite.rect.x -= 1
+            player.sprite.rect.x -= SPEED
         xcor = 0
         ycor = 0
         if Up == True:
             Up = False
-            ycor = -1
+            ycor = -SPEED
         if Down == True:
             Down = False
-            ycor = 1
+            ycor = SPEED
         if Left == True:
             Left = False
-            xcor = -1
+            xcor = -SPEED
         if Right == True:
             Right = False
-            xcor = 1
+            xcor = SPEED
         correct_map(xcor, ycor)
     
     #using the same idea as moving the player, move the map.
