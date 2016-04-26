@@ -48,6 +48,8 @@ class Block(pygame.sprite.Sprite):
        self.backIndex = 0
        self.image = self.imagesFront[self.frontIndex]
 
+       self.count = 0
+
        # Fetch the rectangle object that has the dimensions of the image
        # Update the position of this object by setting the values of rect.x and rect.y
        self.rect = self.image.get_rect()
@@ -55,34 +57,64 @@ class Block(pygame.sprite.Sprite):
        self.rect.y = offset_y
 
     #update animation function with right movement
-    def rightUpdate(self):
-      self.rightIndex += 1
-      if self.rightIndex >= len(self.imagesRight):
+    def rightUpdate(self, move):
+      # on key press -> animate
+      if move == True:
+        self.count += 1
+        if self.count%4 == 0:
+          self.rightIndex += 1
+        if self.rightIndex >= len(self.imagesRight):
+          self.rightIndex = 0
+        self.image = self.imagesRight[self.rightIndex]
+      # on key release -> stop animation
+      else:
         self.rightIndex = 0
-      self.image = self.imagesRight[self.rightIndex]
+        self.image = self.imagesRight[self.rightIndex]
 
     #update animation function with left movement
-    def leftUpdate(self):
-      self.leftIndex += 1
-      if self.leftIndex >= len(self.imagesLeft):
+    def leftUpdate(self, move):
+       # on key press -> animate
+      if move == True:
+        self.count += 1
+        if self.count%4 == 0:
+          self.leftIndex += 1
+        if self.leftIndex >= len(self.imagesLeft):
+          self.leftIndex = 0
+        self.image = self.imagesLeft[self.leftIndex]
+      # on key release -> stop animation
+      else:
         self.leftIndex = 0
-      self.image = self.imagesLeft[self.leftIndex]
+        self.image = self.imagesLeft[self.leftIndex]
 
     #update animation function with left movement
-    def frontUpdate(self):
-      self.frontIndex += 1
-      if self.frontIndex >= len(self.imagesFront):
+    def frontUpdate(self, move):
+             # on key press -> animate
+      if move == True:
+        self.count += 1
+        if self.count%4 == 0:
+          self.frontIndex += 1
+        if self.frontIndex >= len(self.imagesFront):
+          self.frontIndex = 0
+        self.image = self.imagesFront[self.frontIndex]
+      # on key release -> stop animation
+      else:
         self.frontIndex = 0
-      self.image = self.imagesFront[self.frontIndex]
+        self.image = self.imagesFront[self.frontIndex]
 
     #update animation function with left movement
-    def backUpdate(self):
-      self.backIndex += 1
-      if self.backIndex >= len(self.imagesBack):
+    def backUpdate(self, move):
+             # on key press -> animate
+      if move == True:
+        self.count += 1
+        if self.count%4 == 0:
+          self.backIndex += 1
+        if self.backIndex >= len(self.imagesBack):
+          self.backIndex = 0
+        self.image = self.imagesBack[self.backIndex]
+      # on key release -> stop animation
+      else:
         self.backIndex = 0
-      self.image = self.imagesBack[self.backIndex]
-
-
+        self.image = self.imagesBack[self.backIndex]
 
     def move(self, dx, dy):
         
@@ -153,6 +185,11 @@ class Item(pygame.sprite.Sprite):
        self.rect.x = offset_x
        self.rect.y = offset_y
 
+#trying to print out that you obtained a pokeball on the screen
+def displayMessage():
+    DISPLAYSURF.blit(textSurfaceObj, textRectObj)
+
+
 # NOTE: the 7 lines below may not be used!
 # Layered Updates so that the player can "step over" items - Jon Cheng
 #sprites = pygame.sprite.LayeredUpdates()
@@ -169,8 +206,20 @@ pidgey = Object(200,200)
 an_item = Item(275, 125)
 #my_group = pygame.sprite.Group(person)
 
+WHITE = (255, 255, 255) # define white
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 128)
+
+fontObj = pygame.font.Font('freesansbold.ttf', 32)
+textSurfaceObj = fontObj.render('Bruh, you grabbed a Pokeball!!', True, GREEN, BLUE)
+textRectObj = textSurfaceObj.get_rect()
+textRectObj.center = (0, 0)
+
 # Items list
 # Unused # Items = pygame.sprite.Group()
+
+#set the counter for displaying a message
+messageCounter = 0
 
 # set the FPS 
 FPS = 30
@@ -180,8 +229,6 @@ fpsClock = pygame.time.Clock()
 # set up the window amd caption
 DISPLAYSURF = pygame.display.set_mode((400, 300), 0, 32)
 pygame.display.set_caption('Interaction')
-
-WHITE = (255, 255, 255) # define white
 
 #set booleans to false
 moveUp = False
@@ -197,19 +244,19 @@ while True:
   # movements
   if moveUp == True:
     person.move(0, -5)
-    person.backUpdate()
+    person.backUpdate(True)
     #person.image = pygame.image.load('images/player_back.png')
   elif moveDown == True:
     person.move(0, 5)
-    person.frontUpdate()
+    person.frontUpdate(True)
     #person.image = pygame.image.load('images/player_front.png')
   elif moveLeft == True:
     person.move(-5, 0)
-    person.leftUpdate()
+    person.leftUpdate(True)
     #person.image = pygame.image.load('images/player_left.png')
   elif moveRight == True:
     person.move(5, 0)
-    person.rightUpdate()
+    person.rightUpdate(True)
     #person.image = pygame.image.load('images/player_right.png')
 
 
@@ -228,14 +275,20 @@ while True:
         ePressed = True
     # check for key release
     elif event.type == KEYUP:
+      if person.count > 10000:
+        person.count = 0
       if event.key == K_UP:
         moveUp = False
+        person.backUpdate(False)
       elif event.key == K_LEFT:
         moveLeft = False
+        person.leftUpdate(False)
       elif event.key == K_RIGHT:
         moveRight = False
+        person.rightUpdate(False)
       elif event.key == K_DOWN:
         moveDown = False
+        person.frontUpdate(False)
       elif event.key == K_e:
         ePressed = False
     #check if the player quit
@@ -253,12 +306,13 @@ while True:
   # The distance is denoted by the difference between the top left of 
   # the player's/person's image to the top left of the image being compared
   # I'm assuming the solution is in pixels? Test with print statements! 
-    if dist_item < 40 and ePressed == True: # Replaced collision check with dist_obj --Jon Cheng
+    if dist_item < 35 and ePressed == True: # Replaced collision check with dist_obj --Jon Cheng
       print "Bruh, you grabbed a Pokeball!"
+      displayMessage()
       if person.rect.colliderect(an_item) or dist_item < 32:
         an_item.image.fill((255, 255, 255))
-        # an_item.rect.x = -5000
-        # an_item.rect.y = -5000
+        an_item.rect.x = -5000
+        an_item.rect.y = -5000
 
       
     if dist_object < 35 and ePressed == True: # Replaced collision check with dist_obj --Jon Cheng
@@ -282,6 +336,7 @@ while True:
   DISPLAYSURF.blit(pidgey.image, (pidgey.rect.x, pidgey.rect.y))
   #adding another displaysurf for item masterball
   DISPLAYSURF.blit(an_item.image, (an_item.rect.x, an_item.rect.y))
+
 
   # Note: by convention, the last 'blit' is the top-most thing on the game window
   # Immediate source: Google pygame sprite layer --> hyperlink beginning with [SOLVED] 
