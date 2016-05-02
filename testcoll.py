@@ -56,6 +56,8 @@ class Block(pygame.sprite.Sprite):
        self.rect.x = offset_x
        self.rect.y = offset_y
 
+       self.pokeballcheck = False
+
     #update animation function with right movement
     def rightUpdate(self, move):
       # on key press -> animate
@@ -310,12 +312,13 @@ while True:
       print "Bruh, you grabbed a Pokeball!"
       displayMessage()
       if person.rect.colliderect(an_item) or dist_item < 32:
+      	person.pokeballcheck = True
         an_item.image.fill((255, 255, 255))
         an_item.rect.x = -5000
         an_item.rect.y = -5000
 
-      
-    if dist_object < 35 and ePressed == True: # Replaced collision check with dist_obj --Jon Cheng
+    # check collision with pidgey if player has pokeball  
+    if dist_object < 35 and ePressed == True and person.pokeballcheck == True: 
       raise SystemExit, "You Caught a Pidgey!"
 
     # if dist_item < 32 and ePressed == True: # Jon's addendum
